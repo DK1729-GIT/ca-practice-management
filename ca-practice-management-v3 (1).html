@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CA Practice Management System V3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1e3c72;
+            --primary-light: #2a5298;
+            --secondary-color: #e1e8ed;
+            --danger-color: #dc3545;
+            --success-color: #0f5132;
+            --warning-color: #856404;
+            --bg-color: #f5f7fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #657786;
+            --border-color: #e1e8ed;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin-top: 0.3rem;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .tab {
+            padding: 0.8rem 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+            cursor: pointer;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .client-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .client-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .client-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .client-code {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .client-name {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .client-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #bb2d3b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-in-progress { background: #cfe2ff; color: #084298; }
+        .status-under-review { background: #e7d4ff; color: #6b21a8; }
+        .status-completed { background: #d1e7dd; color: #0f5132; }
+        .status-pending-client { background: #f8d7da; color: #842029; }
+
+        .task-item {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .task-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Calendar Specific Styles */
+        .calendar-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .day-name-header {
+            font-weight: 600;
+            text-align: center;
+            padding: 0.8rem 0.2rem;
+            background: var(--bg-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            min-height: 100px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .calendar-day:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-day.today {
+            border-color: var(--primary-color);
+            background: #f0f4ff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .calendar-day.has-tasks {
+            background: #f8fbff;
+        }
+
+        .calendar-day-header {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .calendar-task-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .calendar-task-preview {
+            font-size: 0.75rem;
+            margin-top: 0.3rem;
+        }
+
+        .calendar-task-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.3rem;
+        }
+
+        .dot-gst { background: #0ea5e9; }
+        .dot-itr { background: #10b981; }
+        .dot-audit { background: #8b5cf6; }
+        .dot-tds { background: #f59e0b; }
+        .dot-roc { background: #ec4899; }
+        .dot-default { background: #6b7280; }
+
+        /* Day Details Modal */
+        .day-details {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .day-task-item {
+            background: var(--bg-color);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+        }
+
+        .day-task-item.overdue {
+            border-left-color: var(--danger-color);
+            background: #fff5f5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header p {
+                font-size: 0.8rem;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .tabs {
+                gap: 0.3rem;
+                margin-bottom: 1rem;
+            }
+
+            .tab {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .search-bar {
+                padding: 1rem;
+            }
+
+            .filters {
+                gap: 0.5rem;
+            }
+
+            .filter-select {
+                min-width: 120px;
+                font-size: 0.85rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+            }
+
+            .client-list {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                gap: 0.3rem;
+            }
+
+            .calendar-day {
+                min-height: 70px;
+                padding: 0.3rem;
+            }
+
+            .calendar-day-header {
+                font-size: 0.8rem;
+            }
+
+            .calendar-task-count {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .day-name-header {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.1rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+
+            .task-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .task-actions {
+                width: 100%;
+            }
+
+            .task-actions .btn {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+            }
+
+            .calendar-task-preview {
+                display: none;
+            }
+        }
+
+        /* Utilities */
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .flex { display: flex; }
+        .flex-wrap { flex-wrap: wrap; }
+        .gap-1 { gap: 0.5rem; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+
+    <div class="header">
+        <h1>CA Practice Management System</h1>
+        <p>Streamline your practice with intelligent document management and task tracking</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs" id="mainTabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('clients')">👥 Clients</button>
+            <button class="tab" onclick="switchTab('documents')">📄 Documents</button>
+            <button class="tab" onclick="switchTab('tasks')">✓ Tasks</button>
+            <button class="tab" onclick="switchTab('calendar')">📅 Calendar</button>
+            <button class="tab" onclick="switchTab('settings')">⚙️ Settings</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalClients">0</div>
+                    <div class="stat-label">Total Clients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pendingTasks">0</div>
+                    <div class="stat-label">Pending Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completedThisMonth">0</div>
+                    <div class="stat-label">Completed This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="upcomingDeadlines">0</div>
+                    <div class="stat-label">Upcoming (7 days)</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📌 Quick Actions</h3>
+                <div class="flex flex-wrap gap-1">
+                    <button class="btn btn-primary" onclick="openTaskModal()">+ New Task</button>
+                    <button class="btn btn-secondary" onclick="switchTab('calendar')">View Calendar</button>
+                    <button class="btn btn-secondary" onclick="switchTab('tasks')">All Tasks</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚠️ Upcoming Deadlines (Next 7 Days)</h3>
+                <div id="upcomingDeadlinesList"></div>
+            </div>
+        </div>
+
+        <!-- Clients Tab -->
+        <div id="clients" class="tab-content">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="clientSearch" placeholder="🔍 Search clients by name or code...">
+                <div class="filters">
+                    <select class="filter-select" id="entityTypeFilter">
+                        <option value="">All Entity Types</option>
+                        <option value="Proprietorship">Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="LLP">LLP</option>
+                        <option value="Private Limited">Private Limited</option>
+                        <option value="Trust">Trust</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="clientsList" class="client-list"></div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents" class="tab-content">
+            <div class="search-bar">
+                <input type="text" class="search-input" id="documentSearch" placeholder="🔍 Search documents...">
+            </div>
+            <div class="card">
+                <h3>📄 All Documents</h3>
+                <div id="documentsList"></div>
+            </div>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="tab-content">
+            <div class="card">
+                <div class="flex justify-between items-center flex-wrap gap-1 mb-2">
+                    <div class="filters">
+                        <select class="filter-select" id="taskStatusFilter" onchange="renderTasks()">
+                            <option value="">All Status</option>
+                            <option value="Pending Details from Client">Pending Client</option>
+                            <option value="Work in Progress">In Progress</option>
+                            <option value="Under Review">Under Review</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <select class="filter-select" id="taskClientFilter" onchange="renderTasks()">
+                            <option value="">All Clients</option>
+                        </select>
+                        <select class="filter-select" id="taskTypeFilter" onchange="renderTasks()">
+                            <option value="">All Types</option>
+                            <option value="recurring">Recurring Only</option>
+                            <option value="one-time">One-time Only</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="openTaskModal()">+ New Task</button>
+                </div>
+                <div id="tasksList"></div>
+            </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div id="calendar" class="tab-content">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h3 id="calendarTitle">📅 Compliance Calendar</h3>
+                    <div class="calendar-nav">
+                        <button class="btn btn-secondary" onclick="changeMonth(-1)">← Prev</button>
+                        <button class="btn btn-secondary" onclick="changeMonth(0)">Today</button>
+                        <button class="btn btn-secondary" onclick="changeMonth(1)">Next →</button>
+                    </div>
+                </div>
+                <div class="filters mb-2">
+                    <select class="filter-select" id="calendarService" onchange="renderCalendar()">
+                        <option value="">All Services</option>
+                        <option value="ITR">Income Tax</option>
+                        <option value="GST">GST</option>
+                        <option value="TDS">TDS</option>
+                        <option value="Audit">Audit</option>
+                        <option value="ROC">ROC</option>
+                    </select>
+                    <select class="filter-select" id="calendarClient" onchange="renderCalendar()">
+                        <option value="">All Clients</option>
+                    </select>
+                </div>
+                <div id="calendarView"></div>
+            </div>
+
+            <div class="card mt-2">
+                <h3>⚠️ Overdue Tasks</h3>
+                <div id="overdueTasksList"></div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3>☁️ OneDrive Configuration</h3>
+                <div class="form-group">
+                    <label>OneDrive Folder Path</label>
+                    <input type="text" id="onedrivePath" placeholder="e.g., C:\Users\YourName\OneDrive\2 My Clients">
+                    <p class="mt-1" style="font-size: 0.85rem; color: var(--text-secondary);">
+                        This is a prototype. Enter your "2 My Clients" folder path.
+                    </p>
+                </div>
+                <button class="btn btn-primary" onclick="indexOneDrive()">Index OneDrive Folder</button>
+            </div>
+
+            <div class="card">
+                <h3>💾 Data Management</h3>
+                <div class="flex flex-wrap gap-1">
+                    <button class="btn btn-secondary" onclick="exportData()">📤 Export Data</button>
+                    <button class="btn btn-secondary" onclick="importData()">📥 Import Data</button>
+                    <button class="btn btn-danger" onclick="clearData()">🗑️ Clear All Data</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>ℹ️ About</h3>
+                <p style="color: var(--text-secondary); line-height: 1.8;">
+                    <strong>CA Practice Management System V3</strong><br>
+                    <strong>Version:</strong> 3.0.0<br>
+                    <strong>Database Schema:</strong> v3 (Migration-ready)<br>
+                    <strong>Features:</strong> Interactive Calendar, Mobile Responsive, Recurring Tasks<br><br>
+                    <strong>Note:</strong> This version includes migration-ready architecture for future updates without data loss.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="taskModalTitle">New Task</h2>
+                <button class="close-btn" onclick="closeTaskModal()">×</button>
+            </div>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <div class="form-group">
+                    <label>Client *</label>
+                    <select id="taskClient" required>
+                        <option value="">Select Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" required placeholder="e.g., GSTR-3B Filing - March 2024">
+                </div>
+                <div class="form-group">
+                    <label>Service Type *</label>
+                    <select id="taskService" required>
+                        <option value="">Select Service</option>
+                        <option value="ITR">Income Tax Return</option>
+                        <option value="GST">GST Filing</option>
+                        <option value="Audit">Audit</option>
+                        <option value="ROC">ROC Filing</option>
+                        <option value="Bookkeeping">Bookkeeping</option>
+                        <option value="TDS">TDS Compliance</option>
+                        <option value="CMA">CMA Report</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="taskStatus" required>
+                        <option value="Pending Details from Client">Pending Details from Client</option>
+                        <option value="Work in Progress">Work in Progress</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" id="taskDeadline">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="taskNotes" placeholder="Additional notes..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Invoice Status</label>
+                    <select id="taskInvoiceStatus">
+                        <option value="Not Applicable">Not Applicable</option>
+                        <option value="Invoice Pending">Invoice Pending</option>
+                        <option value="Invoice Raised">Invoice Raised</option>
+                        <option value="Part of Package">Part of Package</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="taskIsRecurring" onchange="toggleRecurringFields()" style="width: auto;">
+                        <span>🔄 This is a recurring task</span>
+                    </label>
+                </div>
+                <div id="recurringFields" style="display: none; padding: 1rem; background: var(--bg-color); border-radius: 6px;">
+                    <div class="form-group">
+                        <label>Recurrence Pattern *</label>
+                        <select id="taskRecurrencePattern">
+                            <option value="">Select Pattern</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Day of Month *</label>
+                        <input type="number" id="taskDueDay" min="1" max="31" placeholder="e.g., 11 for GSTR-1, 20 for GSTR-3B">
+                    </div>
+                    <div class="form-group">
+                        <label>Due Month (for yearly tasks)</label>
+                        <select id="taskDueMonth">
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-between gap-1 mt-2">
+                    <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Day Details Modal -->
+    <div id="dayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dayModalTitle">Tasks for Date</h2>
+                <button class="close-btn" onclick="closeDayModal()">×</button>
+            </div>
+            <div id="dayModalContent" class="day-details"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage - V3 with migration support
+        const APP_VERSION = '3.0.0';
+        const DB_VERSION = 3;
+
+        const storage = {
+            get: (key) => {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            },
+            set: (key, value) => {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+            clear: () => {
+                if (confirm('This will delete all data. Are you sure?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        };
+
+        // Initialize with migration support
+        let clients = storage.get('clients') || [];
+        let documents = storage.get('documents') || [];
+        let tasks = storage.get('tasks') || [];
+        let settings = storage.get('settings') || { 
+            onedrivePath: '',
+            dbVersion: DB_VERSION,
+            appVersion: APP_VERSION
+        };
+
+        // Calendar state
+        let currentCalendarDate = new Date();
+
+        // Migration check
+        if (settings.dbVersion !== DB_VERSION) {
+            console.log(`Migrating from v${settings.dbVersion} to v${DB_VERSION}`);
+            // Future migrations will be added here
+            settings.dbVersion = DB_VERSION;
+            settings.appVersion = APP_VERSION;
+            storage.set('settings', settings);
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const tabs = document.getElementById('mainTabs');
+            tabs.style.display = tabs.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            // Hide mobile menu after selection
+            if (window.innerWidth <= 768) {
+                document.getElementById('mainTabs').style.display = 'none';
+            }
+            
+            // Refresh data when switching tabs
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'clients') renderClients();
+            if (tabName === 'documents') renderDocuments();
+            if (tabName === 'tasks') renderTasks();
+            if (tabName === 'calendar') renderCalendar();
+            if (tabName === 'settings') loadSettings();
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            document.getElementById('totalClients').textContent = clients.length;
+            
+            const pendingTasksCount = tasks.filter(t => t.status !== 'Completed').length;
+            document.getElementById('pendingTasks').textContent = pendingTasksCount;
+            
+            const thisMonth = new Date().getMonth();
+            const completedThisMonth = tasks.filter(t => {
+                if (t.status === 'Completed' && t.completedDate) {
+                    return new Date(t.completedDate).getMonth() === thisMonth;
+                }
+                return false;
+            }).length;
+            document.getElementById('completedThisMonth').textContent = completedThisMonth;
+            
+            const today = new Date();
+            const sevenDaysLater = new Date(today);
+            sevenDaysLater.setDate(today.getDate() + 7);
+            
+            const upcomingTasks = tasks.filter(t => {
+                if (t.deadline && t.status !== 'Completed') {
+                    const deadline = new Date(t.deadline);
+                    return deadline >= today && deadline <= sevenDaysLater;
+                }
+                return false;
+            });
+            
+            document.getElementById('upcomingDeadlines').textContent = upcomingTasks.length;
+            
+            // Render upcoming deadlines list
+            const upcomingList = document.getElementById('upcomingDeadlinesList');
+            if (upcomingTasks.length === 0) {
+                upcomingList.innerHTML = '<p style="color: var(--text-secondary);">No upcoming deadlines in the next 7 days.</p>';
+            } else {
+                upcomingList.innerHTML = upcomingTasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+                    .map(task => {
+                        const client = clients.find(c => c.code === task.clientCode);
+                        const daysUntil = Math.ceil((new Date(task.deadline) - today) / (1000 * 60 * 60 * 24));
+                        return `
+                            <div class="task-item" style="margin-bottom: 0.8rem;">
+                                <div class="flex justify-between items-center flex-wrap gap-1">
+                                    <div>
+                                        <strong>${task.title}</strong><br>
+                                        <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                                            ${client ? client.name : task.clientCode} • ${formatDate(task.deadline)}
+                                            ${daysUntil === 0 ? ' • <strong style="color: var(--warning-color);">Due Today</strong>' : ` • ${daysUntil} day${daysUntil > 1 ? 's' : ''} left`}
+                                        </span>
+                                    </div>
+                                    <button class="btn btn-secondary" onclick="openTaskModal('${task.id}')" style="padding: 0.5rem 1rem;">View</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            }
+        }
+
+        // Client Functions
+        function renderClients() {
+            const container = document.getElementById('clientsList');
+            
+            if (clients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No clients found. Go to Settings to index your OneDrive folder.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const search = document.getElementById('clientSearch').value.toLowerCase();
+            const entityFilter = document.getElementById('entityTypeFilter').value;
+            
+            const filteredClients = clients.filter(client => {
+                const matchesSearch = client.name.toLowerCase().includes(search) || 
+                                    client.code.toLowerCase().includes(search);
+                const matchesEntity = !entityFilter || client.entityType === entityFilter;
+                return matchesSearch && matchesEntity;
+            });
+            
+            if (filteredClients.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No clients match your search criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredClients.map(client => `
+                <div class="client-card" onclick="viewClient('${client.code}')">
+                    <div class="client-code">${client.code}</div>
+                    <div class="client-name">${client.name}</div>
+                    <div class="client-stats">
+                        <span class="stat">📄 ${client.documentCount || 0} docs</span>
+                        <span class="stat">✓ ${client.taskCount || 0} tasks</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewClient(code) {
+            const client = clients.find(c => c.code === code);
+            if (!client) return;
+            alert(`Client: ${client.name}\nCode: ${client.code}\n\nFull client view coming in backend version!`);
+        }
+
+        // Document Functions
+        function renderDocuments() {
+            const container = document.getElementById('documentsList');
+            
+            if (documents.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <p>No documents indexed yet. Go to Settings to index your OneDrive folder.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const search = document.getElementById('documentSearch').value.toLowerCase();
+            const filteredDocs = documents.filter(doc => 
+                doc.name.toLowerCase().includes(search) || doc.type.toLowerCase().includes(search)
+            );
+            
+            container.innerHTML = filteredDocs.map(doc => `
+                <div class="task-item" style="cursor: pointer;" onclick="openDocument('${doc.path}')">
+                    <div class="flex justify-between items-center flex-wrap">
+                        <div>
+                            <strong>${doc.name}</strong><br>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                                📁 ${doc.type} • ${doc.clientName} ${doc.year ? `• ${doc.year}` : ''}
+                            </span>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">${formatDate(doc.modifiedDate)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openDocument(path) {
+            alert(`Opening: ${path}\n\nIn production, this will open from OneDrive.`);
+        }
+
+        // Task Functions
+        let currentTask = null;
+
+        function toggleRecurringFields() {
+            const isRecurring = document.getElementById('taskIsRecurring').checked;
+            const recurringFields = document.getElementById('recurringFields');
+            recurringFields.style.display = isRecurring ? 'block' : 'none';
+        }
+
+        function openTaskModal(taskId = null) {
+            const modal = document.getElementById('taskModal');
+            const form = document.getElementById('taskForm');
+            
+            const clientSelect = document.getElementById('taskClient');
+            clientSelect.innerHTML = '<option value="">Select Client</option>' + 
+                clients.map(c => `<option value="${c.code}">${c.code} - ${c.name}</option>`).join('');
+            
+            if (taskId) {
+                currentTask = tasks.find(t => t.id === taskId);
+                document.getElementById('taskModalTitle').textContent = 'Edit Task';
+                
+                document.getElementById('taskClient').value = currentTask.clientCode;
+                document.getElementById('taskTitle').value = currentTask.title;
+                document.getElementById('taskService').value = currentTask.service;
+                document.getElementById('taskStatus').value = currentTask.status;
+                document.getElementById('taskDeadline').value = currentTask.deadline || '';
+                document.getElementById('taskNotes').value = currentTask.notes || '';
+                document.getElementById('taskInvoiceStatus').value = currentTask.invoiceStatus || 'Not Applicable';
+                
+                document.getElementById('taskIsRecurring').checked = currentTask.isRecurring || false;
+                if (currentTask.isRecurring) {
+                    document.getElementById('taskRecurrencePattern').value = currentTask.recurrencePattern || '';
+                    document.getElementById('taskDueDay').value = currentTask.dueDay || '';
+                    document.getElementById('taskDueMonth').value = currentTask.dueMonth || '';
+                }
+                toggleRecurringFields();
+            } else {
+                currentTask = null;
+                document.getElementById('taskModalTitle').textContent = 'New Task';
+                form.reset();
+                document.getElementById('taskIsRecurring').checked = false;
+                toggleRecurringFields();
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.getElementById('taskForm').reset();
+            currentTask = null;
+        }
+
+        function saveTask(event) {
+            event.preventDefault();
+            
+            const isRecurring = document.getElementById('taskIsRecurring').checked;
+            
+            const taskData = {
+                id: currentTask ? currentTask.id : Date.now().toString(),
+                clientCode: document.getElementById('taskClient').value,
+                title: document.getElementById('taskTitle').value,
+                service: document.getElementById('taskService').value,
+                status: document.getElementById('taskStatus').value,
+                deadline: document.getElementById('taskDeadline').value,
+                notes: document.getElementById('taskNotes').value,
+                invoiceStatus: document.getElementById('taskInvoiceStatus').value,
+                createdDate: currentTask ? currentTask.createdDate : new Date().toISOString(),
+                modifiedDate: new Date().toISOString(),
+                timeLog: currentTask ? currentTask.timeLog : [],
+                completedDate: document.getElementById('taskStatus').value === 'Completed' ? new Date().toISOString() : null,
+                isRecurring: isRecurring,
+                recurrencePattern: isRecurring ? document.getElementById('taskRecurrencePattern').value : null,
+                dueDay: isRecurring ? parseInt(document.getElementById('taskDueDay').value) : null,
+                dueMonth: isRecurring ? document.getElementById('taskDueMonth').value : null,
+                version: DB_VERSION
+            };
+            
+            const statusChange = {
+                timestamp: new Date().toISOString(),
+                action: currentTask ? 'Updated' : 'Created',
+                status: taskData.status,
+                notes: `Task ${currentTask ? 'updated' : 'created'}`
+            };
+            taskData.timeLog.push(statusChange);
+            
+            if (currentTask) {
+                const index = tasks.findIndex(t => t.id === currentTask.id);
+                tasks[index] = taskData;
+            } else {
+                tasks.push(taskData);
+            }
+            
+            if (taskData.isRecurring && taskData.status === 'Completed') {
+                generateNextRecurringTask(taskData);
+            }
+            
+            storage.set('tasks', tasks);
+            closeTaskModal();
+            renderTasks();
+            updateDashboard();
+            renderCalendar();
+        }
+
+        function deleteTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            if (confirm(`Delete task: "${task.title}"?\n\nThis cannot be undone.`)) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                storage.set('tasks', tasks);
+                renderTasks();
+                updateDashboard();
+                renderCalendar();
+            }
+        }
+
+        function duplicateTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const newTask = {
+                ...task,
+                id: Date.now().toString(),
+                title: task.title + ' (Copy)',
+                status: 'Pending Details from Client',
+                createdDate: new Date().toISOString(),
+                modifiedDate: new Date().toISOString(),
+                completedDate: null,
+                timeLog: [{
+                    timestamp: new Date().toISOString(),
+                    action: 'Duplicated',
+                    status: 'Pending Details from Client',
+                    notes: `Duplicated from: ${task.title}`
+                }]
+            };
+            
+            tasks.push(newTask);
+            storage.set('tasks', tasks);
+            renderTasks();
+            alert('Task duplicated successfully!');
+        }
+
+        function generateNextRecurringTask(completedTask) {
+            if (!completedTask.isRecurring) return;
+            
+            const nextTask = {
+                ...completedTask,
+                id: Date.now().toString() + '_recurring',
+                status: 'Pending Details from Client',
+                createdDate: new Date().toISOString(),
+                modifiedDate: new Date().toISOString(),
+                completedDate: null,
+                parentTaskId: completedTask.id,
+                deadline: calculateNextDeadline(completedTask),
+                timeLog: [{
+                    timestamp: new Date().toISOString(),
+                    action: 'Auto-Generated',
+                    status: 'Pending Details from Client',
+                    notes: `Auto-generated from: ${completedTask.title}`
+                }]
+            };
+            
+            tasks.push(nextTask);
+            storage.set('tasks', tasks);
+        }
+
+        function calculateNextDeadline(task) {
+            const today = new Date();
+            let nextDate;
+            
+            if (task.recurrencePattern === 'monthly') {
+                nextDate = new Date(today.getFullYear(), today.getMonth() + 1, task.dueDay);
+            } else if (task.recurrencePattern === 'quarterly') {
+                nextDate = new Date(today.getFullYear(), today.getMonth() + 3, task.dueDay);
+            } else if (task.recurrencePattern === 'yearly' && task.dueMonth) {
+                const nextYear = today.getFullYear() + 1;
+                nextDate = new Date(nextYear, parseInt(task.dueMonth) - 1, task.dueDay);
+            } else {
+                return '';
+            }
+            
+            return nextDate.toISOString().split('T')[0];
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            
+            const clientFilter = document.getElementById('taskClientFilter');
+            if (clients.length > 0 && clientFilter.options.length === 1) {
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.code;
+                    option.textContent = `${client.code} - ${client.name}`;
+                    clientFilter.appendChild(option);
+                });
+            }
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✓</div>
+                        <p>No tasks created yet. Click "New Task" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const statusFilter = document.getElementById('taskStatusFilter').value;
+            const clientFilterValue = document.getElementById('taskClientFilter').value;
+            const typeFilter = document.getElementById('taskTypeFilter').value;
+            
+            const filteredTasks = tasks.filter(task => {
+                const matchesStatus = !statusFilter || task.status === statusFilter;
+                const matchesClient = !clientFilterValue || task.clientCode === clientFilterValue;
+                const matchesType = !typeFilter || 
+                    (typeFilter === 'recurring' && task.isRecurring) ||
+                    (typeFilter === 'one-time' && !task.isRecurring);
+                return matchesStatus && matchesClient && matchesType;
+            });
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No tasks match your filter criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredTasks.map(task => {
+                const client = clients.find(c => c.code === task.clientCode);
+                const statusClass = getStatusClass(task.status);
+                
+                return `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">${task.title}</div>
+                                <div class="mt-1">
+                                    <span class="status-badge ${statusClass}">${task.status}</span>
+                                    ${task.isRecurring ? '<span class="status-badge" style="background: #e0e7ff; color: #4338ca; margin-left: 0.5rem;">🔄 Recurring</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-secondary" onclick="duplicateTask('${task.id}')" title="Duplicate">📋</button>
+                                <button class="btn btn-secondary" onclick="openTaskModal('${task.id}')">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteTask('${task.id}')" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="mt-1" style="font-size: 0.9rem; color: var(--text-secondary);">
+                            <strong>Client:</strong> ${client ? client.name : task.clientCode} •
+                            <strong>Service:</strong> ${task.service}
+                            ${task.deadline ? ` • <strong>Due:</strong> ${formatDate(task.deadline)}` : ''}
+                        </div>
+                        ${task.notes ? `<div class="mt-1" style="padding: 0.5rem; background: var(--bg-color); border-radius: 4px; font-size: 0.85rem;">${task.notes}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStatusClass(status) {
+            const map = {
+                'Pending Details from Client': 'status-pending-client',
+                'Work in Progress': 'status-in-progress',
+                'Under Review': 'status-under-review',
+                'Completed': 'status-completed'
+            };
+            return map[status] || 'status-pending';
+        }
+
+        function getServiceDotClass(service) {
+            const map = {
+                'GST': 'dot-gst',
+                'ITR': 'dot-itr',
+                'Audit': 'dot-audit',
+                'TDS': 'dot-tds',
+                'ROC': 'dot-roc'
+            };
+            return map[service] || 'dot-default';
+        }
+
+        // Calendar Functions
+        function changeMonth(offset) {
+            if (offset === 0) {
+                currentCalendarDate = new Date();
+            } else {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const serviceFilter = document.getElementById('calendarService').value;
+            const clientFilterValue = document.getElementById('calendarClient').value;
+            
+            const clientFilter = document.getElementById('calendarClient');
+            if (clients.length > 0 && clientFilter.options.length === 1) {
+                clients.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.code;
+                    option.textContent = `${client.code} - ${client.name}`;
+                    clientFilter.appendChild(option);
+                });
+            }
+            
+            const targetMonth = currentCalendarDate.getMonth();
+            const targetYear = currentCalendarDate.getFullYear();
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            document.getElementById('calendarTitle').textContent = 
+                `📅 ${monthNames[targetMonth]} ${targetYear}`;
+            
+            const firstDay = new Date(targetYear, targetMonth, 1);
+            const lastDay = new Date(targetYear, targetMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const monthTasks = tasks.filter(task => {
+                if (!task.deadline || task.status === 'Completed') return false;
+                
+                const taskDate = new Date(task.deadline);
+                const matchesMonth = taskDate.getMonth() === targetMonth && 
+                                   taskDate.getFullYear() === targetYear;
+                const matchesService = !serviceFilter || task.service === serviceFilter;
+                const matchesClient = !clientFilterValue || task.clientCode === clientFilterValue;
+                
+                return matchesMonth && matchesService && matchesClient;
+            });
+            
+            let calendarHTML = '<div class="calendar-grid">';
+            
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                calendarHTML += `<div class="day-name-header">${day}</div>`;
+            });
+            
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                calendarHTML += '<div class="calendar-day other-month"></div>';
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(targetYear, targetMonth, day);
+                currentDate.setHours(0, 0, 0, 0);
+                const isToday = currentDate.getTime() === today.getTime();
+                
+                const dayTasks = monthTasks.filter(task => {
+                    const taskDate = new Date(task.deadline);
+                    return taskDate.getDate() === day;
+                });
+                
+                const hasTasks = dayTasks.length > 0;
+                
+                calendarHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasTasks ? 'has-tasks' : ''}" 
+                         onclick="showDayTasks('${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}')">
+                        <div class="calendar-day-header">
+                            <span>${day}</span>
+                            ${hasTasks ? `<span class="calendar-task-count">${dayTasks.length}</span>` : ''}
+                        </div>
+                        ${dayTasks.slice(0, 2).map(task => `
+                            <div class="calendar-task-preview">
+                                <span class="calendar-task-dot ${getServiceDotClass(task.service)}"></span>
+                                <span style="font-size: 0.7rem;">${task.service}</span>
+                            </div>
+                        `).join('')}
+                        ${dayTasks.length > 2 ? `<div class="calendar-task-preview" style="color: var(--text-secondary); font-size: 0.7rem;">+${dayTasks.length - 2} more</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            calendarHTML += '</div>';
+            
+            document.getElementById('calendarView').innerHTML = calendarHTML;
+            
+            renderOverdueTasks();
+        }
+
+        function showDayTasks(dateStr) {
+            const date = new Date(dateStr);
+            const dayTasks = tasks.filter(task => {
+                if (!task.deadline) return false;
+                const taskDate = new Date(task.deadline);
+                return taskDate.toDateString() === date.toDateString();
+            });
+            
+            const modal = document.getElementById('dayModal');
+            const title = document.getElementById('dayModalTitle');
+            const content = document.getElementById('dayModalContent');
+            
+            title.textContent = `Tasks for ${formatDate(dateStr)}`;
+            
+            if (dayTasks.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <p>No tasks scheduled for this date.</p>
+                    </div>
+                `;
+            } else {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const isOverdue = date < today;
+                
+                content.innerHTML = dayTasks.map(task => {
+                    const client = clients.find(c => c.code === task.clientCode);
+                    const statusClass = getStatusClass(task.status);
+                    
+                    return `
+                        <div class="day-task-item ${isOverdue && task.status !== 'Completed' ? 'overdue' : ''}">
+                            <div class="flex justify-between items-center flex-wrap gap-1 mb-1">
+                                <strong>${task.title}</strong>
+                                <span class="status-badge ${statusClass}">${task.status}</span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                <strong>Client:</strong> ${client ? client.name : task.clientCode}<br>
+                                <strong>Service:</strong> ${task.service}<br>
+                                ${task.invoiceStatus !== 'Not Applicable' ? `<strong>Invoice:</strong> ${task.invoiceStatus}<br>` : ''}
+                                ${task.isRecurring ? '<strong>Type:</strong> 🔄 Recurring<br>' : ''}
+                            </div>
+                            ${task.notes ? `<div style="padding: 0.5rem; background: white; border-radius: 4px; font-size: 0.85rem; margin-bottom: 0.5rem;">${task.notes}</div>` : ''}
+                            <div class="flex gap-1">
+                                <button class="btn btn-secondary" onclick="openTaskModal('${task.id}'); closeDayModal();" style="padding: 0.5rem 1rem;">Edit Task</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeDayModal() {
+            document.getElementById('dayModal').classList.remove('active');
+        }
+
+        function renderOverdueTasks() {
+            const container = document.getElementById('overdueTasksList');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const overdueTasks = tasks.filter(task => {
+                if (!task.deadline || task.status === 'Completed') return false;
+                const taskDate = new Date(task.deadline);
+                taskDate.setHours(0, 0, 0, 0);
+                return taskDate < today;
+            });
+            
+            if (overdueTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>✓ No overdue tasks - Great job!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = overdueTasks.map(task => {
+                const client = clients.find(c => c.code === task.clientCode);
+                const statusClass = getStatusClass(task.status);
+                const daysOverdue = Math.floor((today - new Date(task.deadline)) / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="task-item" style="border-left: 4px solid var(--danger-color);">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">${task.title}</div>
+                                <div class="mt-1">
+                                    <span class="status-badge ${statusClass}">${task.status}</span>
+                                    <span class="status-badge" style="background: #fee; color: var(--danger-color); margin-left: 0.5rem;">
+                                        ${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue
+                                    </span>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" onclick="openTaskModal('${task.id}')">Edit</button>
+                        </div>
+                        <div class="mt-1" style="font-size: 0.9rem; color: var(--text-secondary);">
+                            <strong>Client:</strong> ${client ? client.name : task.clientCode} •
+                            <strong>Service:</strong> ${task.service} •
+                            <strong>Due:</strong> <span style="color: var(--danger-color); font-weight: 600;">${formatDate(task.deadline)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Settings Functions
+        function loadSettings() {
+            document.getElementById('onedrivePath').value = settings.onedrivePath || '';
+        }
+
+        function indexOneDrive() {
+            const path = document.getElementById('onedrivePath').value.trim();
+            
+            if (!path) {
+                alert('Please enter your OneDrive folder path first.');
+                return;
+            }
+            
+            settings.onedrivePath = path;
+            storage.set('settings', settings);
+            
+            // Demo data
+            const sampleClients = [
+                { code: '003AA', name: 'Dineshkumar', entityType: 'Proprietorship', documentCount: 5, taskCount: 2 },
+                { code: '005AA', name: 'Anbalagan', entityType: 'Proprietorship', documentCount: 3, taskCount: 1 },
+                { code: '008AA', name: 'Prabhakaran Muruganandham', entityType: 'Partnership', documentCount: 8, taskCount: 3 },
+                { code: '009AA', name: 'Karthick Rajendiran', entityType: 'LLP', documentCount: 6, taskCount: 2 },
+                { code: '011AA', name: 'Suresh Kaveri', entityType: 'Private Limited', documentCount: 12, taskCount: 4 }
+            ];
+            
+            clients = sampleClients;
+            storage.set('clients', clients);
+            
+            const sampleDocs = [
+                { name: 'ITR_Acknowledgement_FY2023-24.pdf', type: 'ITR', clientName: 'Dineshkumar', clientCode: '003AA', year: '2023-24', path: '/003AA/3 Income tax return Filing/', modifiedDate: '2024-07-22' },
+                { name: 'Audit_Report_FY2023-24.pdf', type: 'Audit', clientName: 'Prabhakaran Muruganandham', clientCode: '008AA', year: '2023-24', path: '/008AA/Audit/', modifiedDate: '2024-07-18' }
+            ];
+            
+            documents = sampleDocs;
+            storage.set('documents', documents);
+            
+            alert(`✓ OneDrive indexed successfully!\n\nFound: ${clients.length} clients, ${documents.length} documents\n\nNote: This is demo data. Production version will scan actual folders.`);
+            
+            updateDashboard();
+            renderClients();
+            renderDocuments();
+        }
+
+        function exportData() {
+            const data = {
+                version: APP_VERSION,
+                dbVersion: DB_VERSION,
+                exportDate: new Date().toISOString(),
+                clients,
+                documents,
+                tasks,
+                settings
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ca-practice-backup-v${DB_VERSION}-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Version check
+                        if (data.dbVersion && data.dbVersion !== DB_VERSION) {
+                            if (!confirm(`This backup is from v${data.dbVersion}, current version is v${DB_VERSION}.\n\nImport anyway? Data will be migrated.`)) {
+                                return;
+                            }
+                        }
+                        
+                        clients = data.clients || [];
+                        documents = data.documents || [];
+                        tasks = data.tasks || [];
+                        settings = data.settings || {};
+                        settings.dbVersion = DB_VERSION;
+                        settings.appVersion = APP_VERSION;
+                        
+                        storage.set('clients', clients);
+                        storage.set('documents', documents);
+                        storage.set('tasks', tasks);
+                        storage.set('settings', settings);
+                        
+                        alert('✓ Data imported successfully!');
+                        location.reload();
+                    } catch (error) {
+                        alert('❌ Error importing data. Please check the file format.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function clearData() {
+            storage.clear();
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // Event Listeners
+        document.getElementById('clientSearch')?.addEventListener('input', renderClients);
+        document.getElementById('entityTypeFilter')?.addEventListener('change', renderClients);
+        document.getElementById('documentSearch')?.addEventListener('input', renderDocuments);
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateDashboard();
+            renderClients();
+            renderDocuments();
+            renderTasks();
+            renderCalendar();
+        });
+
+        // Handle window resize for mobile menu
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('mainTabs').style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
