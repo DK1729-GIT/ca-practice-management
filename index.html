@@ -5,42 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CA Practice Management System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-color: #1e3c72;
+            --primary: #1e3c72;
             --primary-light: #2a5298;
-            --secondary-color: #e1e8ed;
-            --danger-color: #dc3545;
-            --success-color: #0f5132;
-            --warning-color: #856404;
-            --bg-color: #f5f7fa;
-            --text-primary: #2c3e50;
-            --text-secondary: #657786;
-            --border-color: #e1e8ed;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-            --transition: all 0.3s ease;
+            --secondary: #e1e8ed;
+            --danger: #dc3545;
+            --success: #0f5132;
+            --warning: #856404;
+            --bg: #f5f7fa;
+            --text: #2c3e50;
+            --text-light: #657786;
+            --border: #e1e8ed;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
 
-        /* Login Page Styles */
+        /* LOGIN PAGE */
         .login-container {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             padding: 1rem;
         }
 
@@ -53,47 +41,20 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        .login-header { text-align: center; margin-bottom: 2rem; }
+        .login-header h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .login-header p { color: var(--text-light); font-size: 0.9rem; }
 
-        .login-header h1 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .login-header p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
         .form-group input {
             width: 100%;
             padding: 0.8rem;
-            border: 2px solid var(--border-color);
+            border: 2px solid var(--border);
             border-radius: 6px;
             font-size: 1rem;
-            transition: var(--transition);
         }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
+        .form-group input:focus { outline: none; border-color: var(--primary); }
 
         .btn {
             width: 100%;
@@ -103,40 +64,20 @@
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
-            transition: var(--transition);
+            transition: all 0.3s;
         }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-
-        .btn-primary:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
 
         .toggle-form {
             text-align: center;
             margin-top: 1.5rem;
-            color: var(--text-secondary);
+            color: var(--text-light);
             font-size: 0.9rem;
         }
-
-        .toggle-form a {
-            color: var(--primary-color);
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .toggle-form a:hover {
-            text-decoration: underline;
-        }
+        .toggle-form a { color: var(--primary); cursor: pointer; text-decoration: none; font-weight: 600; }
+        .toggle-form a:hover { text-decoration: underline; }
 
         .alert {
             padding: 1rem;
@@ -144,27 +85,14 @@
             margin-bottom: 1rem;
             display: none;
         }
+        .alert-success { background: #d1e7dd; color: var(--success); border-left: 4px solid var(--success); }
+        .alert-error { background: #f8d7da; color: var(--danger); border-left: 4px solid var(--danger); }
 
-        .alert-success {
-            background: #d1e7dd;
-            color: var(--success-color);
-            border-left: 4px solid var(--success-color);
-        }
+        /* MAIN APP */
+        #mainApp { display: none; }
 
-        .alert-error {
-            background: #f8d7da;
-            color: var(--danger-color);
-            border-left: 4px solid var(--danger-color);
-        }
-
-        /* Main App - Hidden until logged in */
-        #mainApp {
-            display: none;
-        }
-
-        /* Header with logout */
         .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
             padding: 1.5rem 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -174,35 +102,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
         }
 
-        .header-left h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
+        .header h1 { font-size: 1.5rem; }
+        .header p { opacity: 0.9; font-size: 0.85rem; margin-top: 0.3rem; }
 
-        .header-left p {
-            margin-top: 0.3rem;
-            opacity: 0.9;
-            font-size: 0.85rem;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .user-info {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
+        .user-info { text-align: right; }
         .logout-btn {
             background: rgba(255,255,255,0.2);
             color: white;
@@ -210,65 +115,123 @@
             padding: 0.5rem 1.2rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: var(--transition);
+            margin-left: 1rem;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
         }
 
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
+        .tab {
+            padding: 0.8rem 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .tab:hover { color: var(--primary); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        .welcome-message {
+        .stat-card {
             background: white;
             border-radius: 8px;
-            padding: 2rem;
-            margin: 2rem 0;
-            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             text-align: center;
         }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-label { color: var(--text-light); margin-top: 0.5rem; }
 
-        .welcome-message h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
         }
+        .card h3 { color: var(--primary); margin-bottom: 1rem; }
 
-        .welcome-message p {
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
+        .btn-secondary { background: var(--secondary); color: var(--text); margin: 0.5rem; }
+        .btn-danger { background: var(--danger); color: white; }
 
-        .loading {
+        .empty-state {
             text-align: center;
-            padding: 2rem;
-            color: var(--primary-color);
+            padding: 3rem 1rem;
+            color: var(--text-light);
         }
 
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .header-right {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .login-card {
-                padding: 1.5rem;
-            }
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .login-card { padding: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Login/Register Page -->
+    <!-- LOGIN PAGE -->
     <div id="authPage" class="login-container">
         <div class="login-card">
             <div class="login-header">
@@ -278,7 +241,6 @@
 
             <div id="alertBox" class="alert"></div>
 
-            <!-- Login Form -->
             <form id="loginForm">
                 <div class="form-group">
                     <label>Username</label>
@@ -291,7 +253,6 @@
                 <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
             </form>
 
-            <!-- Register Form (Hidden initially) -->
             <form id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label>Full Name</label>
@@ -299,15 +260,15 @@
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="regEmail" required autocomplete="email">
+                    <input type="email" id="regEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" id="regUsername" required autocomplete="username">
+                    <input type="text" id="regUsername" required>
                 </div>
                 <div class="form-group">
                     <label>Password (min 6 characters)</label>
-                    <input type="password" id="regPassword" required minlength="6" autocomplete="new-password">
+                    <input type="password" id="regPassword" required minlength="6">
                 </div>
                 <button type="submit" class="btn btn-primary" id="registerBtn">Create Account</button>
             </form>
@@ -319,55 +280,199 @@
         </div>
     </div>
 
-    <!-- Main Application (Hidden until logged in) -->
+    <!-- MAIN APP -->
     <div id="mainApp">
         <div class="header">
-            <div class="header-left">
+            <div>
                 <h1>CA Practice Management System</h1>
                 <p>Streamline your practice with intelligent management</p>
             </div>
-            <div class="header-right">
+            <div style="display: flex; align-items: center;">
                 <div class="user-info">
-                    <div class="user-name" id="userName">Loading...</div>
-                    <div style="font-size: 0.8rem; opacity: 0.8;" id="userEmail"></div>
+                    <div id="userName" style="font-weight: 600;"></div>
+                    <div id="userEmail" style="font-size: 0.8rem; opacity: 0.8;"></div>
                 </div>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <div class="container">
-            <div class="welcome-message">
-                <h2>🎉 Welcome to Your Practice Management System!</h2>
-                <p>
-                    Your backend is successfully connected and running at:<br>
-                    <strong>https://dk1729git.pythonanywhere.com</strong>
-                </p>
-                <p style="margin-top: 1rem;">
-                    <strong>✅ Authentication:</strong> Working<br>
-                    <strong>✅ Database:</strong> Connected<br>
-                    <strong>✅ API Endpoints:</strong> Ready
-                </p>
-                <p style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
-                    The full dashboard with clients, tasks, and calendar will be integrated next.<br>
-                    For now, you can verify your system is working by checking the browser console (F12).
-                </p>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+                <button class="tab" onclick="switchTab('clients')">👥 Clients</button>
+                <button class="tab" onclick="switchTab('tasks')">✓ Tasks</button>
+                <button class="tab" onclick="switchTab('calendar')">📅 Calendar</button>
             </div>
 
-            <div id="appContent" class="loading">
-                Loading your data...
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalClients">0</div>
+                        <div class="stat-label">Total Clients</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingTasks">0</div>
+                        <div class="stat-label">Pending Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedMonth">0</div>
+                        <div class="stat-label">Completed This Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="upcomingDeadlines">0</div>
+                        <div class="stat-label">Upcoming (7 days)</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📌 Quick Actions</h3>
+                    <button class="btn btn-primary" onclick="openClientModal()">+ New Client</button>
+                    <button class="btn btn-secondary" onclick="openTaskModal()">+ New Task</button>
+                    <button class="btn btn-secondary" onclick="switchTab('calendar')">View Calendar</button>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="clients" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <h3>👥 All Clients</h3>
+                        <button class="btn btn-primary" onclick="openClientModal()" style="width: auto;">+ New Client</button>
+                    </div>
+                    <div id="clientsList"></div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <h3>✓ All Tasks</h3>
+                        <button class="btn btn-primary" onclick="openTaskModal()" style="width: auto;">+ New Task</button>
+                    </div>
+                    <div id="tasksList"></div>
+                </div>
+            </div>
+
+            <!-- Calendar Tab -->
+            <div id="calendar" class="tab-content">
+                <div class="card">
+                    <h3>📅 Task Calendar</h3>
+                    <p style="color: var(--text-light);">Calendar view coming soon! Currently showing tasks in list view.</p>
+                    <div id="calendarTasks"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // API Configuration
-        const API_URL = 'https://dk1729git.pythonanywhere.com';
+    <!-- Client Modal -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Client</h2>
+                <button class="close-btn" onclick="closeClientModal()">×</button>
+            </div>
+            <form id="clientForm" onsubmit="saveClient(event)">
+                <div class="form-group">
+                    <label>Client Code *</label>
+                    <input type="text" id="clientCode" required placeholder="e.g., 001AA">
+                </div>
+                <div class="form-group">
+                    <label>Client Name *</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label>Client Type</label>
+                    <select id="clientType">
+                        <option value="">Select Type</option>
+                        <option value="Proprietorship">Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="LLP">LLP</option>
+                        <option value="Private Limited">Private Limited</option>
+                        <option value="Trust">Trust</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>PAN</label>
+                    <input type="text" id="clientPAN">
+                </div>
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="clientGSTIN">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="clientEmail">
+                </div>
+                <div class="form-group">
+                    <label>Mobile</label>
+                    <input type="tel" id="clientMobile">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Client</button>
+            </form>
+        </div>
+    </div>
 
-        // Auth state
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Task</h2>
+                <button class="close-btn" onclick="closeTaskModal()">×</button>
+            </div>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <div class="form-group">
+                    <label>Client *</label>
+                    <select id="taskClient" required>
+                        <option value="">Select Client</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Service Type *</label>
+                    <select id="taskService" required>
+                        <option value="">Select Service</option>
+                        <option value="ITR">Income Tax Return</option>
+                        <option value="GST">GST Filing</option>
+                        <option value="Audit">Audit</option>
+                        <option value="ROC">ROC Filing</option>
+                        <option value="TDS">TDS Compliance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select id="taskStatus" required>
+                        <option value="Pending Details from Client">Pending Client</option>
+                        <option value="Work in Progress">In Progress</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" id="taskDeadline">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="taskNotes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Task</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://dk1729git.pythonanywhere.com';
         let currentUser = null;
         let authToken = null;
+        let clients = [];
+        let tasks = [];
 
-        // Check if already logged in
+        // Check if logged in
         window.addEventListener('load', () => {
             const savedToken = localStorage.getItem('auth_token');
             const savedUser = localStorage.getItem('user_info');
@@ -379,39 +484,21 @@
             }
         });
 
-        // Toggle between login and register
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const toggleLink = document.getElementById('toggleLink');
-        const toggleText = document.getElementById('toggleText');
-        const authSubtitle = document.getElementById('authSubtitle');
-
+        // Toggle login/register
         let isLoginMode = true;
-
-        toggleLink.addEventListener('click', () => {
+        document.getElementById('toggleLink').addEventListener('click', () => {
             isLoginMode = !isLoginMode;
-            
-            if (isLoginMode) {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                toggleText.textContent = "Don't have an account?";
-                toggleLink.textContent = 'Sign up';
-                authSubtitle.textContent = 'Sign in to your account';
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                toggleText.textContent = 'Already have an account?';
-                toggleLink.textContent = 'Sign in';
-                authSubtitle.textContent = 'Create a new account';
-            }
-            
+            document.getElementById('loginForm').style.display = isLoginMode ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('toggleText').textContent = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('toggleLink').textContent = isLoginMode ? 'Sign up' : 'Sign in';
+            document.getElementById('authSubtitle').textContent = isLoginMode ? 'Sign in to your account' : 'Create a new account';
             hideAlert();
         });
 
-        // Login handler
-        loginForm.addEventListener('submit', async (e) => {
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             const btn = document.getElementById('loginBtn');
@@ -432,30 +519,24 @@
                 if (data.success) {
                     authToken = data.token;
                     currentUser = data.user;
-                    
                     localStorage.setItem('auth_token', authToken);
                     localStorage.setItem('user_info', JSON.stringify(currentUser));
-                    
-                    showAlert('Login successful! Redirecting...', 'success');
-                    
-                    setTimeout(() => {
-                        showMainApp();
-                    }, 1000);
+                    showAlert('Login successful!', 'success');
+                    setTimeout(showMainApp, 1000);
                 } else {
                     showAlert(data.error || 'Login failed', 'error');
                 }
             } catch (error) {
-                showAlert('Connection error. Please check your internet.', 'error');
+                showAlert('Connection error. Please try again.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Login';
             }
         });
 
-        // Register handler
-        registerForm.addEventListener('submit', async (e) => {
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const fullName = document.getElementById('regFullName').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const username = document.getElementById('regUsername').value.trim();
@@ -470,32 +551,21 @@
                 const response = await fetch(`${API_URL}/api/auth/register`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        username,
-                        email,
-                        password,
-                        full_name: fullName
-                    })
+                    body: JSON.stringify({ username, email, password, full_name: fullName })
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
                     showAlert('Account created! Please login.', 'success');
-                    
-                    // Auto-fill login form
                     document.getElementById('loginUsername').value = username;
                     document.getElementById('loginPassword').value = password;
-                    
-                    // Switch to login form
-                    setTimeout(() => {
-                        toggleLink.click();
-                    }, 1500);
+                    setTimeout(() => document.getElementById('toggleLink').click(), 1500);
                 } else {
                     showAlert(data.error || 'Registration failed', 'error');
                 }
             } catch (error) {
-                showAlert('Connection error. Please check your internet.', 'error');
+                showAlert('Connection error. Please try again.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Create Account';
@@ -510,73 +580,272 @@
         }
 
         function hideAlert() {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.style.display = 'none';
+            document.getElementById('alertBox').style.display = 'none';
         }
 
         function showMainApp() {
             document.getElementById('authPage').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            
-            // Update user info
             document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
             document.getElementById('userEmail').textContent = currentUser.email;
-            
-            // Load dashboard data
             loadDashboard();
         }
 
         async function loadDashboard() {
-            const appContent = document.getElementById('appContent');
-            
             try {
-                const response = await fetch(`${API_URL}/api/stats/dashboard?token=${authToken}`);
+                // Load stats
+                const statsRes = await fetch(`${API_URL}/api/stats/dashboard?token=${authToken}`);
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    document.getElementById('totalClients').textContent = statsData.stats.total_clients;
+                    document.getElementById('pendingTasks').textContent = statsData.stats.pending_tasks;
+                    document.getElementById('completedMonth').textContent = statsData.stats.completed_this_month;
+                    document.getElementById('upcomingDeadlines').textContent = statsData.stats.upcoming_deadlines;
+                }
+
+                // Load clients
+                const clientsRes = await fetch(`${API_URL}/api/clients?token=${authToken}`);
+                const clientsData = await clientsRes.json();
+                if (clientsData.success) {
+                    clients = clientsData.clients;
+                    renderClients();
+                }
+
+                // Load tasks
+                const tasksRes = await fetch(`${API_URL}/api/tasks?token=${authToken}`);
+                const tasksData = await tasksRes.json();
+                if (tasksData.success) {
+                    tasks = tasksData.tasks;
+                    renderTasks();
+                    renderCalendar();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function renderClients() {
+            const container = document.getElementById('clientsList');
+            if (clients.length === 0) {
+                container.innerHTML = '<div class="empty-state">No clients yet. Click "New Client" to add one!</div>';
+                return;
+            }
+
+            container.innerHTML = clients.map(client => `
+                <div style="padding: 1rem; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary);">${client.client_code}</div>
+                            <div style="font-size: 1.1rem; margin: 0.5rem 0;">${client.client_name}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-light);">
+                                ${client.client_type || 'N/A'} ${client.pan ? '• PAN: ' + client.pan : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteClient('${client.client_code}')" style="width: auto; padding: 0.5rem 1rem;">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tasks yet. Click "New Task" to add one!</div>';
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => {
+                const client = clients.find(c => c.client_code === task.client_code);
+                return `
+                    <div style="padding: 1rem; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <div style="font-weight: 600;">${task.title}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
+                                    Client: ${client ? client.client_name : task.client_code} • 
+                                    Service: ${task.service} • 
+                                    ${task.deadline ? 'Due: ' + new Date(task.deadline).toLocaleDateString() : 'No deadline'}
+                                </div>
+                                <span style="padding: 0.3rem 0.8rem; background: #e7f3f8; color: #17a2b8; border-radius: 20px; font-size: 0.8rem;">
+                                    ${task.status}
+                                </span>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteTask('${task.task_id}')" style="width: auto; padding: 0.5rem 1rem;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarTasks');
+            const upcomingTasks = tasks.filter(t => t.deadline && t.status !== 'Completed')
+                .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            if (upcomingTasks.length === 0) {
+                container.innerHTML = '<div class="empty-state">No upcoming tasks</div>';
+                return;
+            }
+
+            container.innerHTML = upcomingTasks.map(task => {
+                const client = clients.find(c => c.client_code === task.client_code);
+                return `
+                    <div style="padding: 1rem; border-left: 4px solid var(--primary); background: #f8fbff; border-radius: 6px; margin-bottom: 1rem;">
+                        <div style="font-weight: 600;">${task.title}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
+                            ${client ? client.client_name : task.client_code} • 
+                            ${new Date(task.deadline).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function openClientModal() {
+            document.getElementById('clientModal').classList.add('active');
+        }
+
+        function closeClientModal() {
+            document.getElementById('clientModal').classList.remove('active');
+            document.getElementById('clientForm').reset();
+        }
+
+        async function saveClient(e) {
+            e.preventDefault();
+            const clientData = {
+                client_code: document.getElementById('clientCode').value.trim(),
+                client_name: document.getElementById('clientName').value.trim(),
+                client_type: document.getElementById('clientType').value,
+                pan: document.getElementById('clientPAN').value.trim(),
+                gstin: document.getElementById('clientGSTIN').value.trim(),
+                email: document.getElementById('clientEmail').value.trim(),
+                mobile_number: document.getElementById('clientMobile').value.trim()
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/clients`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(clientData)
+                });
+
                 const data = await response.json();
 
                 if (data.success) {
-                    appContent.innerHTML = `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-                            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); text-align: center;">
-                                <div style="font-size: 3rem; font-weight: 700; color: var(--primary-color);">${data.stats.total_clients}</div>
-                                <div style="color: var(--text-secondary); margin-top: 0.5rem;">Total Clients</div>
-                            </div>
-                            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); text-align: center;">
-                                <div style="font-size: 3rem; font-weight: 700; color: #17a2b8;">${data.stats.pending_tasks}</div>
-                                <div style="color: var(--text-secondary); margin-top: 0.5rem;">Pending Tasks</div>
-                            </div>
-                            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); text-align: center;">
-                                <div style="font-size: 3rem; font-weight: 700; color: var(--success-color);">${data.stats.completed_this_month}</div>
-                                <div style="color: var(--text-secondary); margin-top: 0.5rem;">Completed This Month</div>
-                            </div>
-                            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); text-align: center;">
-                                <div style="font-size: 3rem; font-weight: 700; color: var(--warning-color);">${data.stats.upcoming_deadlines}</div>
-                                <div style="color: var(--text-secondary); margin-top: 0.5rem;">Upcoming (7 days)</div>
-                            </div>
-                        </div>
-                        
-                        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); margin-top: 2rem;">
-                            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">📋 Next Steps</h3>
-                            <ul style="line-height: 2; color: var(--text-secondary);">
-                                <li>✅ <strong>Backend Connected:</strong> Your API is working perfectly!</li>
-                                <li>✅ <strong>Authentication:</strong> Secure login/logout implemented</li>
-                                <li>✅ <strong>Database:</strong> SQLite database initialized</li>
-                                <li>📝 <strong>Coming Next:</strong> Full dashboard with clients, tasks, calendar</li>
-                                <li>📝 <strong>Integrations:</strong> Google Sheets sync, OneDrive scanner, Email alerts</li>
-                            </ul>
-                        </div>
-                    `;
+                    alert('Client added successfully!');
+                    closeClientModal();
+                    loadDashboard();
                 } else {
-                    throw new Error('Failed to load dashboard');
+                    alert('Error: ' + data.error);
                 }
             } catch (error) {
-                appContent.innerHTML = `
-                    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow-sm); text-align: center;">
-                        <div style="font-size: 3rem;">⚠️</div>
-                        <h3 style="color: var(--danger-color); margin: 1rem 0;">Connection Error</h3>
-                        <p style="color: var(--text-secondary);">Unable to load dashboard data.</p>
-                        <button onclick="loadDashboard()" class="btn btn-primary" style="margin-top: 1rem; max-width: 200px;">Retry</button>
-                    </div>
-                `;
+                alert('Connection error. Please try again.');
+            }
+        }
+
+        async function deleteClient(clientCode) {
+            if (!confirm('Delete this client?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/clients/${clientCode}?token=${authToken}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Client deleted!');
+                    loadDashboard();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Connection error.');
+            }
+        }
+
+        function openTaskModal() {
+            // Populate client dropdown
+            const select = document.getElementById('taskClient');
+            select.innerHTML = '<option value="">Select Client</option>' + 
+                clients.map(c => `<option value="${c.client_code}">${c.client_code} - ${c.client_name}</option>`).join('');
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.getElementById('taskForm').reset();
+        }
+
+        async function saveTask(e) {
+            e.preventDefault();
+            const taskData = {
+                task_id: Date.now().toString(),
+                client_code: document.getElementById('taskClient').value,
+                title: document.getElementById('taskTitle').value.trim(),
+                service: document.getElementById('taskService').value,
+                status: document.getElementById('taskStatus').value,
+                deadline: document.getElementById('taskDeadline').value || null,
+                notes: document.getElementById('taskNotes').value.trim(),
+                time_log: JSON.stringify([{
+                    timestamp: new Date().toISOString(),
+                    action: 'Created',
+                    status: document.getElementById('taskStatus').value
+                }])
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(taskData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Task added successfully!');
+                    closeTaskModal();
+                    loadDashboard();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Connection error. Please try again.');
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (!confirm('Delete this task?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/tasks/${taskId}?token=${authToken}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Task deleted!');
+                    loadDashboard();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Connection error.');
             }
         }
 
@@ -587,11 +856,6 @@
                 location.reload();
             }
         }
-
-        // Log API info for debugging
-        console.log('CA Practice Management System');
-        console.log('API URL:', API_URL);
-        console.log('Frontend Version: 3.0 with Authentication');
     </script>
 </body>
 </html>
