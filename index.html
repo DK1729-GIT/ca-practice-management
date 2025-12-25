@@ -504,6 +504,8 @@
                         <option value="Audit">Audit</option>
                         <option value="ROC">ROC Filing</option>
                         <option value="TDS">TDS Compliance</option>
+                        <option value="ESI/PF">ESI/PF Returns</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -519,6 +521,37 @@
                     <label>Deadline</label>
                     <input type="date" id="taskDeadline">
                 </div>
+                
+                <!-- Recurring Task Section -->
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="taskRecurring" onchange="toggleRecurringFields()" style="width: auto;">
+                    <label for="taskRecurring" style="margin: 0;">🔁 Make this a recurring task</label>
+                </div>
+                
+                <div id="recurringFields" style="display: none; background: #f8fbff; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Recurrence Pattern *</label>
+                        <select id="taskRecurrencePattern" onchange="updateRecurrencePreview()">
+                            <option value="">Select Pattern</option>
+                            <option value="monthly">Monthly (Every month on same date)</option>
+                            <option value="quarterly">Quarterly (Every 3 months)</option>
+                            <option value="yearly">Yearly (Every year on same date)</option>
+                            <option value="custom_monthly">Custom Monthly (Specific day each month)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="customDayField" style="display: none;">
+                        <label>Day of Month (1-31)</label>
+                        <input type="number" id="taskDueDay" min="1" max="31" placeholder="e.g., 20 for 20th of each month">
+                        <small style="color: var(--text-light);">For GST: Enter 20, for TDS: Enter 7, etc.</small>
+                    </div>
+                    
+                    <div id="recurrencePreview" style="padding: 0.8rem; background: white; border-left: 4px solid var(--primary); margin-top: 1rem; border-radius: 4px; display: none;">
+                        <strong>Preview:</strong>
+                        <div id="recurrencePreviewText" style="margin-top: 0.5rem; color: var(--text-light);"></div>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label>Notes</label>
                     <textarea id="taskNotes" rows="3"></textarea>
@@ -723,11 +756,17 @@
 
             container.innerHTML = tasks.map(task => {
                 const client = clients.find(c => c.client_code === task.client_code);
+                const isRecurring = task.is_recurring || false;
+                const recurringBadge = isRecurring ? '<span style="padding: 0.3rem 0.8rem; background: #fff3cd; color: #856404; border-radius: 20px; font-size: 0.75rem; margin-left: 0.5rem;">🔁 Recurring</span>' : '';
+                
                 return `
                     <div style="padding: 1rem; border: 2px solid var(--border); border-radius: 8px; margin-bottom: 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div>
-                                <div style="font-weight: 600;">${task.title}</div>
+                                <div style="font-weight: 600;">
+                                    ${task.title}
+                                    ${recurringBadge}
+                                </div>
                                 <div style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
                                     Client: ${client ? client.client_name : task.client_code} • 
                                     Service: ${task.service} • 
@@ -736,6 +775,7 @@
                                 <span style="padding: 0.3rem 0.8rem; background: #e7f3f8; color: #17a2b8; border-radius: 20px; font-size: 0.8rem;">
                                     ${task.status}
                                 </span>
+                                ${isRecurring ? `<span style="padding: 0.3rem 0.8rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 20px; font-size: 0.75rem; margin-left: 0.5rem;">${getRecurrenceLabel(task)}</span>` : ''}
                             </div>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-secondary" onclick="editTask('${task.task_id}')" style="width: auto; padding: 0.5rem 1rem;">Edit</button>
@@ -745,6 +785,19 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function getRecurrenceLabel(task) {
+            if (!task.recurrence_pattern) return '';
+            
+            const labels = {
+                'monthly': 'Monthly',
+                'quarterly': 'Quarterly',
+                'yearly': 'Yearly',
+                'custom_monthly': `Monthly (${task.due_day}${getDaySuffix(task.due_day)})`
+            };
+            
+            return labels[task.recurrence_pattern] || task.recurrence_pattern;
         }
 
         function renderCalendar() {
@@ -927,6 +980,8 @@
             currentEditingTask = null;
             document.getElementById('taskModal').querySelector('h2').textContent = 'New Task';
             document.getElementById('taskForm').reset();
+            document.getElementById('recurringFields').style.display = 'none';
+            document.getElementById('taskRecurring').checked = false;
             
             // Populate client dropdown
             const select = document.getElementById('taskClient');
@@ -943,6 +998,93 @@
         }
 
         let currentEditingTask = null;
+
+        function toggleRecurringFields() {
+            const isRecurring = document.getElementById('taskRecurring').checked;
+            document.getElementById('recurringFields').style.display = isRecurring ? 'block' : 'none';
+            
+            if (!isRecurring) {
+                document.getElementById('taskRecurrencePattern').value = '';
+                document.getElementById('recurrencePreview').style.display = 'none';
+            }
+        }
+
+        function updateRecurrencePreview() {
+            const pattern = document.getElementById('taskRecurrencePattern').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const customDayField = document.getElementById('customDayField');
+            const preview = document.getElementById('recurrencePreview');
+            const previewText = document.getElementById('recurrencePreviewText');
+            
+            // Show/hide custom day field
+            customDayField.style.display = pattern === 'custom_monthly' ? 'block' : 'none';
+            
+            if (!pattern) {
+                preview.style.display = 'none';
+                return;
+            }
+            
+            let text = '';
+            const today = new Date();
+            const baseDate = deadline ? new Date(deadline) : today;
+            
+            if (pattern === 'monthly') {
+                const day = baseDate.getDate();
+                text = `This task will repeat on the <strong>${day}${getDaySuffix(day)}</strong> of every month.<br>`;
+                text += `Next occurrences: ${getNextOccurrences(baseDate, 'monthly', 3)}`;
+            } else if (pattern === 'quarterly') {
+                const day = baseDate.getDate();
+                const month = baseDate.getMonth();
+                text = `This task will repeat every 3 months on the same date.<br>`;
+                text += `Next occurrences: ${getNextOccurrences(baseDate, 'quarterly', 3)}`;
+            } else if (pattern === 'yearly') {
+                const day = baseDate.getDate();
+                const month = baseDate.toLocaleString('default', { month: 'long' });
+                text = `This task will repeat every year on <strong>${day}${getDaySuffix(day)} ${month}</strong>.<br>`;
+                text += `Next occurrences: ${getNextOccurrences(baseDate, 'yearly', 3)}`;
+            } else if (pattern === 'custom_monthly') {
+                const dueDay = document.getElementById('taskDueDay').value;
+                if (dueDay) {
+                    text = `This task will repeat on the <strong>${dueDay}${getDaySuffix(parseInt(dueDay))}</strong> of every month.<br>`;
+                    const customDate = new Date(today.getFullYear(), today.getMonth(), parseInt(dueDay));
+                    text += `Next occurrences: ${getNextOccurrences(customDate, 'monthly', 3)}`;
+                } else {
+                    text = 'Enter the day of month above to see preview.';
+                }
+            }
+            
+            previewText.innerHTML = text;
+            preview.style.display = 'block';
+        }
+
+        function getDaySuffix(day) {
+            if (day >= 11 && day <= 13) return 'th';
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        function getNextOccurrences(baseDate, pattern, count) {
+            const dates = [];
+            let currentDate = new Date(baseDate);
+            
+            for (let i = 0; i < count; i++) {
+                if (pattern === 'monthly') {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                } else if (pattern === 'quarterly') {
+                    currentDate.setMonth(currentDate.getMonth() + 3);
+                } else if (pattern === 'yearly') {
+                    currentDate.setFullYear(currentDate.getFullYear() + 1);
+                }
+                dates.push(currentDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
+                currentDate = new Date(currentDate);
+            }
+            
+            return dates.join(', ');
+        }
 
         function editTask(taskId) {
             const task = tasks.find(t => t.task_id === taskId);
@@ -963,6 +1105,21 @@
             document.getElementById('taskDeadline').value = task.deadline || '';
             document.getElementById('taskNotes').value = task.notes || '';
             
+            // Handle recurring fields
+            const isRecurring = task.is_recurring || false;
+            document.getElementById('taskRecurring').checked = isRecurring;
+            
+            if (isRecurring) {
+                document.getElementById('recurringFields').style.display = 'block';
+                document.getElementById('taskRecurrencePattern').value = task.recurrence_pattern || '';
+                if (task.due_day) {
+                    document.getElementById('taskDueDay').value = task.due_day;
+                }
+                updateRecurrencePreview();
+            } else {
+                document.getElementById('recurringFields').style.display = 'none';
+            }
+            
             // Change modal title
             document.getElementById('taskModal').querySelector('h2').textContent = 'Edit Task';
             
@@ -972,6 +1129,21 @@
         async function saveTask(e) {
             e.preventDefault();
             
+            const isRecurring = document.getElementById('taskRecurring').checked;
+            const recurrencePattern = document.getElementById('taskRecurrencePattern').value;
+            const dueDay = document.getElementById('taskDueDay').value;
+            
+            // Validation for recurring tasks
+            if (isRecurring && !recurrencePattern) {
+                alert('Please select a recurrence pattern for recurring tasks');
+                return;
+            }
+            
+            if (recurrencePattern === 'custom_monthly' && !dueDay) {
+                alert('Please enter the day of month for custom monthly recurrence');
+                return;
+            }
+            
             const taskData = {
                 task_id: currentEditingTask ? currentEditingTask.task_id : Date.now().toString(),
                 client_code: document.getElementById('taskClient').value,
@@ -979,7 +1151,10 @@
                 service: document.getElementById('taskService').value,
                 status: document.getElementById('taskStatus').value,
                 deadline: document.getElementById('taskDeadline').value || null,
-                notes: document.getElementById('taskNotes').value.trim()
+                notes: document.getElementById('taskNotes').value.trim(),
+                is_recurring: isRecurring,
+                recurrence_pattern: isRecurring ? recurrencePattern : null,
+                due_day: (isRecurring && dueDay) ? parseInt(dueDay) : null
             };
 
             try {
@@ -1003,6 +1178,9 @@
                             status: taskData.status,
                             deadline: taskData.deadline,
                             notes: taskData.notes,
+                            is_recurring: taskData.is_recurring,
+                            recurrence_pattern: taskData.recurrence_pattern,
+                            due_day: taskData.due_day,
                             time_log: JSON.stringify([
                                 ...(currentEditingTask.time_log ? JSON.parse(currentEditingTask.time_log) : []),
                                 {
@@ -1036,7 +1214,8 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    alert(currentEditingTask ? 'Task updated successfully!' : 'Task added successfully!');
+                    const recurringMsg = taskData.is_recurring ? ' (Recurring task configured!)' : '';
+                    alert((currentEditingTask ? 'Task updated' : 'Task added') + ' successfully!' + recurringMsg);
                     closeTaskModal();
                     loadDashboard();
                 } else {
