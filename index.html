@@ -302,6 +302,7 @@
                 <button class="tab" onclick="switchTab('clients')">👥 Clients</button>
                 <button class="tab" onclick="switchTab('tasks')">✓ Tasks</button>
                 <button class="tab" onclick="switchTab('calendar')">📅 Calendar</button>
+                <button class="tab" onclick="switchTab('settings')">⚙️ Settings</button>
             </div>
 
             <!-- Dashboard Tab -->
@@ -359,8 +360,62 @@
             <div id="calendar" class="tab-content">
                 <div class="card">
                     <h3>📅 Task Calendar</h3>
-                    <p style="color: var(--text-light);">Calendar view coming soon! Currently showing tasks in list view.</p>
+                    <p style="color: var(--text-light);">Tasks sorted by deadline with urgency indicators.</p>
                     <div id="calendarTasks"></div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <div class="card">
+                    <h3>📊 Google Sheets Sync</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">Import all 42 clients from your Google Sheet in one click!</p>
+                    
+                    <form id="sheetsSettingsForm" onsubmit="syncGoogleSheets(event)">
+                        <div class="form-group">
+                            <label>Google Spreadsheet ID *</label>
+                            <input type="text" id="spreadsheetId" placeholder="Paste your spreadsheet ID here" required>
+                            <small style="color: var(--text-light);">
+                                Find this in your sheet URL: docs.google.com/spreadsheets/d/<strong>SPREADSHEET_ID</strong>/edit
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="syncSheetsBtn">
+                            🔄 Sync Google Sheets (Import 42 Clients)
+                        </button>
+                    </form>
+                    
+                    <div id="sheetsStatus" style="margin-top: 1rem;"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 How Google Sheets Sync Works</h3>
+                    <ul style="line-height: 2; color: var(--text-light);">
+                        <li>✅ <strong>Your Sheet Format:</strong> Table name "Client_List" with 10 columns</li>
+                        <li>✅ <strong>42 Clients:</strong> All will be imported automatically</li>
+                        <li>✅ <strong>New Clients:</strong> Added to database</li>
+                        <li>✅ <strong>Existing Clients:</strong> Updated with latest data</li>
+                        <li>🔄 <strong>One-Click:</strong> Click sync anytime to refresh data</li>
+                        <li>🔒 <strong>Secure:</strong> Read-only access to your sheet</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📁 OneDrive Document Scanner</h3>
+                    <p style="color: var(--text-light);">Automatically scan and index documents from your "2 My Clients" folder</p>
+                    <button class="btn btn-secondary" onclick="alert('OneDrive scanner coming next! Complete Google Sheets first.')">
+                        Configure OneDrive Scanner
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 Coming Soon</h3>
+                    <ul style="line-height: 2; color: var(--text-light);">
+                        <li>📧 Email Notifications - Deadline reminders</li>
+                        <li>📅 Daily Summary Emails - 8 AM daily report</li>
+                        <li>🔁 Recurring Tasks - Auto-generate monthly tasks</li>
+                        <li>📊 Reports & Analytics</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -1013,6 +1068,93 @@
                 location.reload();
             }
         }
+
+        // Google Sheets Sync Function
+        async function syncGoogleSheets(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('syncSheetsBtn');
+            const statusDiv = document.getElementById('sheetsStatus');
+            
+            const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
+            
+            btn.disabled = true;
+            btn.textContent = '🔄 Syncing... Please wait';
+            statusDiv.innerHTML = '<div style="padding: 1rem; background: #e7f3f8; border-radius: 6px;">📊 Reading Google Sheets and importing clients...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/sync/google-sheets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        spreadsheet_id: spreadsheetId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.details;
+                    statusDiv.innerHTML = `
+                        <div style="padding: 1rem; background: #d1e7dd; color: #0f5132; border-radius: 6px;">
+                            ✅ <strong>Sync Complete!</strong><br><br>
+                            📊 Total Clients in Sheet: ${result.total}<br>
+                            ➕ New Clients Added: ${result.new}<br>
+                            🔄 Existing Clients Updated: ${result.updated}<br>
+                            ${result.errors > 0 ? `⚠️ Errors: ${result.errors}<br>` : ''}
+                            <br>
+                            <strong>All ${result.total} clients are now in your system!</strong><br>
+                            Go to the Clients tab to see them.
+                        </div>
+                    `;
+                    
+                    // Save spreadsheet ID for future syncs
+                    localStorage.setItem('spreadsheet_id', spreadsheetId);
+                    
+                    // Reload dashboard to show new stats
+                    setTimeout(() => {
+                        loadDashboard();
+                        alert(`✅ Successfully imported ${result.total} clients! Check the Clients tab.`);
+                    }, 2000);
+                } else {
+                    statusDiv.innerHTML = `
+                        <div style="padding: 1rem; background: #f8d7da; color: #842029; border-radius: 6px;">
+                            ❌ <strong>Sync Failed</strong><br><br>
+                            ${data.error}<br><br>
+                            <strong>Common issues:</strong><br>
+                            • Make sure the Spreadsheet ID is correct<br>
+                            • Check that credentials.json is uploaded to PythonAnywhere<br>
+                            • Verify the sheet has a table named "Client_List"<br>
+                            • Ensure you've completed OAuth authentication
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div style="padding: 1rem; background: #f8d7da; color: #842029; border-radius: 6px;">
+                        ❌ <strong>Connection Error</strong><br><br>
+                        Could not connect to backend. Error: ${error.message}
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 Sync Google Sheets (Import 42 Clients)';
+            }
+        }
+
+        // Load saved spreadsheet ID on page load
+        window.addEventListener('load', () => {
+            const savedSpreadsheetId = localStorage.getItem('spreadsheet_id');
+            if (savedSpreadsheetId) {
+                const input = document.getElementById('spreadsheetId');
+                if (input) {
+                    input.value = savedSpreadsheetId;
+                }
+            }
+        });
     </script>
 </body>
 </html>
