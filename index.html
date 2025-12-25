@@ -487,9 +487,12 @@
             <form id="taskForm" onsubmit="saveTask(event)">
                 <div class="form-group">
                     <label>Client *</label>
-                    <select id="taskClient" required>
-                        <option value="">Select Client</option>
-                    </select>
+                    <input type="text" id="taskClientSearch" placeholder="Type to search client..." autocomplete="off" onkeyup="filterClients()" onfocus="showClientDropdown()" required>
+                    <input type="hidden" id="taskClient" required>
+                    <div id="clientDropdown" style="display: none; position: relative; max-height: 200px; overflow-y: auto; border: 2px solid var(--border); border-radius: 6px; background: white; margin-top: 0.5rem;">
+                        <!-- Client options will be inserted here -->
+                    </div>
+                    <small style="color: var(--text-light);">Start typing client code or name to search</small>
                 </div>
                 <div class="form-group">
                     <label>Task Title *</label>
@@ -497,7 +500,7 @@
                 </div>
                 <div class="form-group">
                     <label>Service Type *</label>
-                    <select id="taskService" required>
+                    <select id="taskService" required onchange="toggleOtherService()">
                         <option value="">Select Service</option>
                         <option value="ITR">Income Tax Return</option>
                         <option value="GST">GST Filing</option>
@@ -505,8 +508,12 @@
                         <option value="ROC">ROC Filing</option>
                         <option value="TDS">TDS Compliance</option>
                         <option value="ESI/PF">ESI/PF Returns</option>
-                        <option value="Other">Other</option>
+                        <option value="Others">Others (Specify)</option>
                     </select>
+                </div>
+                <div class="form-group" id="otherServiceField" style="display: none;">
+                    <label>Specify Service Type *</label>
+                    <input type="text" id="taskServiceOther" placeholder="e.g., Transfer Pricing, FEMA, Tax Planning">
                 </div>
                 <div class="form-group">
                     <label>Status *</label>
@@ -982,11 +989,13 @@
             document.getElementById('taskForm').reset();
             document.getElementById('recurringFields').style.display = 'none';
             document.getElementById('taskRecurring').checked = false;
+            document.getElementById('otherServiceField').style.display = 'none';
+            document.getElementById('clientDropdown').style.display = 'none';
+            document.getElementById('taskClient').value = '';
+            document.getElementById('taskClientSearch').value = '';
             
-            // Populate client dropdown
-            const select = document.getElementById('taskClient');
-            select.innerHTML = '<option value="">Select Client</option>' + 
-                clients.map(c => `<option value="${c.client_code}">${c.client_code} - ${c.client_name}</option>`).join('');
+            // Populate client dropdown initially
+            populateClientDropdown();
             
             document.getElementById('taskModal').classList.add('active');
         }
@@ -994,8 +1003,80 @@
         function closeTaskModal() {
             document.getElementById('taskModal').classList.remove('active');
             document.getElementById('taskForm').reset();
+            document.getElementById('clientDropdown').style.display = 'none';
             currentEditingTask = null;
         }
+
+        function populateClientDropdown(filterText = '') {
+            const dropdown = document.getElementById('clientDropdown');
+            
+            let filteredClients = clients;
+            if (filterText) {
+                const search = filterText.toLowerCase();
+                filteredClients = clients.filter(c => 
+                    c.client_code.toLowerCase().includes(search) || 
+                    c.client_name.toLowerCase().includes(search)
+                );
+            }
+            
+            if (filteredClients.length === 0) {
+                dropdown.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-light);">No clients found</div>';
+                return;
+            }
+            
+            dropdown.innerHTML = filteredClients.map(c => `
+                <div onclick="selectClient('${c.client_code}', '${c.client_name.replace(/'/g, "\\'")}')" 
+                     style="padding: 0.8rem; cursor: pointer; border-bottom: 1px solid var(--border);"
+                     onmouseover="this.style.background='#f5f7fa'" 
+                     onmouseout="this.style.background='white'">
+                    <div style="font-weight: 600; color: var(--primary);">${c.client_code}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">${c.client_name}</div>
+                </div>
+            `).join('');
+        }
+
+        function showClientDropdown() {
+            document.getElementById('clientDropdown').style.display = 'block';
+            populateClientDropdown();
+        }
+
+        function filterClients() {
+            const searchText = document.getElementById('taskClientSearch').value;
+            populateClientDropdown(searchText);
+            document.getElementById('clientDropdown').style.display = 'block';
+        }
+
+        function selectClient(clientCode, clientName) {
+            document.getElementById('taskClient').value = clientCode;
+            document.getElementById('taskClientSearch').value = `${clientCode} - ${clientName}`;
+            document.getElementById('clientDropdown').style.display = 'none';
+        }
+
+        function toggleOtherService() {
+            const serviceValue = document.getElementById('taskService').value;
+            const otherField = document.getElementById('otherServiceField');
+            
+            if (serviceValue === 'Others') {
+                otherField.style.display = 'block';
+                document.getElementById('taskServiceOther').required = true;
+            } else {
+                otherField.style.display = 'none';
+                document.getElementById('taskServiceOther').required = false;
+                document.getElementById('taskServiceOther').value = '';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('clientDropdown');
+            const searchInput = document.getElementById('taskClientSearch');
+            
+            if (dropdown && searchInput && 
+                !dropdown.contains(event.target) && 
+                event.target !== searchInput) {
+                dropdown.style.display = 'none';
+            }
+        });
 
         let currentEditingTask = null;
 
@@ -1092,15 +1173,29 @@
 
             currentEditingTask = task;
             
-            // Populate client dropdown
-            const select = document.getElementById('taskClient');
-            select.innerHTML = '<option value="">Select Client</option>' + 
-                clients.map(c => `<option value="${c.client_code}">${c.client_code} - ${c.client_name}</option>`).join('');
+            // Populate client search field
+            const client = clients.find(c => c.client_code === task.client_code);
+            if (client) {
+                document.getElementById('taskClient').value = task.client_code;
+                document.getElementById('taskClientSearch').value = `${client.client_code} - ${client.client_name}`;
+            }
             
             // Fill form with task data
-            document.getElementById('taskClient').value = task.client_code;
             document.getElementById('taskTitle').value = task.title;
-            document.getElementById('taskService').value = task.service;
+            
+            // Handle service type (check if it's a custom "Others" value)
+            const serviceSelect = document.getElementById('taskService');
+            const serviceOptions = Array.from(serviceSelect.options).map(opt => opt.value);
+            
+            if (serviceOptions.includes(task.service)) {
+                serviceSelect.value = task.service;
+                document.getElementById('otherServiceField').style.display = 'none';
+            } else {
+                serviceSelect.value = 'Others';
+                document.getElementById('otherServiceField').style.display = 'block';
+                document.getElementById('taskServiceOther').value = task.service;
+            }
+            
             document.getElementById('taskStatus').value = task.status;
             document.getElementById('taskDeadline').value = task.deadline || '';
             document.getElementById('taskNotes').value = task.notes || '';
@@ -1144,11 +1239,22 @@
                 return;
             }
             
+            // Get service type (handle Others)
+            let serviceType = document.getElementById('taskService').value;
+            if (serviceType === 'Others') {
+                const otherService = document.getElementById('taskServiceOther').value.trim();
+                if (!otherService) {
+                    alert('Please specify the service type');
+                    return;
+                }
+                serviceType = otherService;
+            }
+            
             const taskData = {
                 task_id: currentEditingTask ? currentEditingTask.task_id : Date.now().toString(),
                 client_code: document.getElementById('taskClient').value,
                 title: document.getElementById('taskTitle').value.trim(),
-                service: document.getElementById('taskService').value,
+                service: serviceType,
                 status: document.getElementById('taskStatus').value,
                 deadline: document.getElementById('taskDeadline').value || null,
                 notes: document.getElementById('taskNotes').value.trim(),
